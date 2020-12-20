@@ -5,13 +5,14 @@ using UnityEngine;
 public class EventHandler : MonoBehaviour
 {
 
-    List<PlayerPosition> pos_events;
-    List<PlayerKill> kill_events;
-    List<PlayerDamaged> damaged_events;
-    List<PlayerDeath> death_events;
+    public static List<PlayerPosition> pos_events;
+    public static List<PlayerKill> kill_events;
+    public static List<PlayerDamaged> damaged_events;
+    public static List<PlayerDeath> death_events;
 
     public GameObject Player;
     public bool collecting_data = true;
+    public static bool heatmap;
 
     uint events_count = 0;
     float timer = 0;
@@ -26,6 +27,9 @@ public class EventHandler : MonoBehaviour
         kill_events = new List<PlayerKill>();
         damaged_events = new List<PlayerDamaged>();
         death_events = new List<PlayerDeath>();
+
+        if (collecting_data == false)
+            heatmap = true;
 
         if(collecting_data == false)
         {
@@ -73,14 +77,12 @@ public class EventHandler : MonoBehaviour
     //Write Events --------------------------------------------
     public void WritePosEventsData()
     {
-        string events = "{\n";
+        string events = "";
 
         for (int i = 0; i<pos_events.Count; ++i)
         {
             events += pos_events[i].GetJSON() + "\n";
         }
-
-        events +="}";
 
         Writer.Write(Position_filename, events);
     }
@@ -93,7 +95,7 @@ public class EventHandler : MonoBehaviour
         if (data == null)
             return;
 
-        for (int row = 1; row < data.Length - 1; ++row)
+        for (int row = 0; row < data.Length-1; ++row)
         {
             PlayerPosition new_pos = new PlayerPosition();
 
