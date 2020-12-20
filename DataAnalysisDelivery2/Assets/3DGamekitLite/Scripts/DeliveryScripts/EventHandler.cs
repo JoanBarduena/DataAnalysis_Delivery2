@@ -45,7 +45,7 @@ public class EventHandler : MonoBehaviour
         {
             timer += Time.deltaTime;
 
-            if (timer >= 3)
+            if (timer >= 1)
             {
                 NewPositionEvent(Player);
                 timer = 0;
