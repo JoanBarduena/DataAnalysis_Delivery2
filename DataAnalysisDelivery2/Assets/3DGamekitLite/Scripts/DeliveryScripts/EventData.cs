@@ -72,6 +72,12 @@ public class PlayerPosition : EventData
 [Serializable]
 public class PlayerKill : EventData
 {
+    public PlayerKill()
+    {
+        EventID = 0;
+        TimeStamp = System.DateTime.Now;
+        position = Vector3.zero;
+    }
     public PlayerKill(string enemy_killed, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
     {
         event_type = Events.PLAYER_KILL;
@@ -83,6 +89,12 @@ public class PlayerKill : EventData
 [Serializable]
 public class PlayerDamaged : EventData
 {
+    public PlayerDamaged()
+    {
+        EventID = 0;
+        TimeStamp = System.DateTime.Now;
+        position = Vector3.zero;
+    }
     public PlayerDamaged(string enemy_type, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
     {
         event_type = Events.PLAYER_DAMAGED;
@@ -94,6 +106,13 @@ public class PlayerDamaged : EventData
 [Serializable]
 public class PlayerDeath : EventData
 {
+    public PlayerDeath()
+    {
+        EventID = 0;
+        TimeStamp = System.DateTime.Now;
+        position = Vector3.zero;
+    }
+
     public PlayerDeath(DeathTypes type, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
     {
         event_type = Events.PLAYER_DEATH;
