@@ -34,6 +34,9 @@ public class EventHandler : MonoBehaviour
         {
             heatmap = true;
             ReadPosEventsData();
+            ReadDamagedEventsData();
+            ReadDeathEventsData();
+            ReadKillEventsData();
         }
 
     }

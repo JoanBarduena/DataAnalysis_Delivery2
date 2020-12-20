@@ -1,11 +1,14 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
+using System.Linq;
 
 public class HeatMap : MonoBehaviour
 {
     int GridSize_X, GridSize_Y;
     int[,] EventCounts;
+    private List<GameObject> spawned_cubes;
 
     public Transform start_pos;
     public Transform end_pos;
@@ -15,6 +18,7 @@ public class HeatMap : MonoBehaviour
     public Gradient ColorGradient;
 
     public DataType DataType;
+    private DataType last_DataType;
 
     public int MaxCounts = 10;
 
@@ -26,6 +30,8 @@ public class HeatMap : MonoBehaviour
         GridSize_Y = (int)(end_pos.position.z - start_pos.position.z);
 
         EventCounts = new int[GridSize_X, GridSize_Y];
+
+        spawned_cubes = new List<GameObject>();
     }
 
     private void Update()
@@ -35,47 +41,69 @@ public class HeatMap : MonoBehaviour
             CountEvents();
             VisualizeEvents();
             calculated_heatmap = true;
+            last_DataType = DataType;
+        }
+
+        if (last_DataType != DataType)
+        {
+            // Delete last heatmap cubes
+            foreach(GameObject cube in spawned_cubes)
+            {
+                Destroy(cube);
+            }
+            spawned_cubes.Clear();
+
+            for (int i = 0; i < GridSize_X; ++i)
+            {
+                for (int j = 0; j < GridSize_Y; ++j)
+                {
+                    EventCounts[i, j] = 0;
+                }
+            }
+
+
+            calculated_heatmap = false;
         }
     }
 
     void CountEvents()
     {
+        List<EventData> eventsToShow = null;
+
         if (DataType == DataType.Position)
         {
-            for (int i = 0; i < EventHandler.pos_events.Count; ++i)
-            {
-                Vector3 event_pos = EventHandler.pos_events[i].position;
-
-                float index_x = start_pos.transform.position.x - event_pos.x;
-                float index_y = start_pos.transform.position.z - event_pos.z;
-
-                Debug.Log(index_x);
-                Debug.Log(index_y);
-                Debug.Log("-------------------------------------");
-
-                EventCounts[(int)Mathf.Abs(index_x), (int)Mathf.Abs(index_y)]++;
-            }
+            eventsToShow = EventHandler.pos_events.Cast<EventData>().ToList();
         }
         else if (DataType == DataType.PlayerKill)
         {
-            for (int i = 0; i < EventHandler.kill_events.Count; ++i)
-            {
-
-            }
+            eventsToShow = EventHandler.kill_events.Cast<EventData>().ToList();
         }
         else if (DataType == DataType.PlayerDamage)
         {
-            for (int i = 0; i < EventHandler.damaged_events.Count; ++i)
-            {
-
-            }
+            eventsToShow = EventHandler.damaged_events.Cast<EventData>().ToList();
         }
         else if (DataType == DataType.Death)
         {
-            for (int i = 0; i < EventHandler.death_events.Count; ++i)
-            {
+            eventsToShow = EventHandler.death_events.Cast<EventData>().ToList();
+        }
 
-            }
+        if (eventsToShow == null)
+        {
+            Debug.LogError("ASADMNFDSAGNDSAKINVDSKNGVSDK");
+            return;
+        }
+        for (int i = 0; i < eventsToShow.Count; ++i)
+        {
+            Vector3 event_pos = eventsToShow[i].position;
+
+            float index_x = start_pos.transform.position.x - event_pos.x;
+            float index_y = start_pos.transform.position.z - event_pos.z;
+
+            EventCounts[(int)Mathf.Abs(index_x), (int)Mathf.Abs(index_y)]++;
+            //Debug.Log(index_x);
+            //Debug.Log(index_y);
+            //Debug.Log("-------------------------------------");
+
         }
 
     }
@@ -102,6 +130,7 @@ public class HeatMap : MonoBehaviour
         Color c = ColorGradient.Evaluate(f);
         c.a = 0.85f;
         cube.SetColor(c);
+        spawned_cubes.Add(cube.gameObject);
     }
 
     private float GetHeight(int x, int y)
