@@ -20,12 +20,13 @@ public enum DeathTypes
     ENEMY
 };
 
+[Serializable]
 public class EventData
 {
-    protected uint EventID;
-    protected DateTime TimeStamp;
-    protected Vector3 position;
-    protected Events event_type = Events.NONE;
+    public uint EventID;
+    public DateTime TimeStamp;
+    public Vector3 position;
+    public Events event_type = Events.NONE;
 
     public EventData()
     {
@@ -48,18 +49,20 @@ public class EventData
 
     public string GetJSON()
     {
-        return JsonUtility.ToJson(this);
+        return JsonUtility.ToJson(this, true);
     }
 }
 
 // ----------------------- EVENTS -----------------------
+[Serializable]
 public class PlayerPosition : EventData
 {
-    public PlayerPosition(Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
+    public PlayerPosition(uint event_id, DateTime time, Vector3 position) : base(event_id, time, position)
     {
         event_type = Events.PLAYER_POSITION;
     }
 }
+[Serializable]
 public class PlayerKill : EventData
 {
     public PlayerKill(string enemy_killed, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
@@ -70,6 +73,7 @@ public class PlayerKill : EventData
 
     public string enemy_killed;
 }
+[Serializable]
 public class PlayerDamaged : EventData
 {
     public PlayerDamaged(string enemy_type, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)
@@ -80,6 +84,7 @@ public class PlayerDamaged : EventData
 
     public string enemy_type;
 }
+[Serializable]
 public class PlayerDeath : EventData
 {
     public PlayerDeath(DeathTypes type, Vector3 position, uint event_id, DateTime time) : base(event_id, time, position)

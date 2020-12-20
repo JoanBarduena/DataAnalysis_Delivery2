@@ -36,11 +36,33 @@ public class EventHandler : MonoBehaviour
         } 
     }
 
+    private void OnApplicationQuit()
+    {
+        if (pos_events.Count > 0)
+        {
+            WritePosEventsData();
+        }
+    }
+
     //Events Creation
     public void NewPositionEvent(GameObject player)
     {
-        PlayerPosition new_pos = new PlayerPosition(player.transform.position, events_count, System.DateTime.Now);
+        PlayerPosition new_pos = new PlayerPosition(events_count, System.DateTime.Now, player.transform.position);
         pos_events.Add(new_pos);
         events_count++;
+    }
+
+    public void WritePosEventsData()
+    {
+        string events = "[\n";
+
+        foreach (PlayerPosition pos in pos_events)
+        {
+            events += pos.GetJSON() + ",\n";
+        }
+
+        events +="]";
+
+        Writer.Write("PositionEvents", events);
     }
 }
