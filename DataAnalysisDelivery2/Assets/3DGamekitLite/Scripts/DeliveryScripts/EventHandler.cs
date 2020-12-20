@@ -11,9 +11,13 @@ public class EventHandler : MonoBehaviour
     List<PlayerDeath> death_events;
 
     public GameObject Player;
+    public bool collecting_data = true;
 
     uint events_count = 0;
     float timer = 0;
+
+    //Filenames
+    string Position_filename = "PositionEvents";
 
     // Start is called before the first frame update
     void Start()
@@ -22,29 +26,43 @@ public class EventHandler : MonoBehaviour
         kill_events = new List<PlayerKill>();
         damaged_events = new List<PlayerDamaged>();
         death_events = new List<PlayerDeath>();
+
+        if(collecting_data == false)
+        {
+            ReadPosEventsData();
+        }
+
     }
 
     // Update is called once per frame
     void Update()
     {
-        timer += Time.deltaTime;
-
-        if (timer >= 3)
+        if (collecting_data)
         {
-            NewPositionEvent(Player);
-            timer = 0;
-        } 
+            timer += Time.deltaTime;
+
+            if (timer >= 3)
+            {
+                NewPositionEvent(Player);
+                timer = 0;
+            }
+        }
+        
     }
 
     private void OnApplicationQuit()
     {
-        if (pos_events.Count > 0)
+        if(collecting_data)
         {
-            WritePosEventsData();
+            if (pos_events.Count > 0)
+            {
+                WritePosEventsData();
+            }
         }
+        
     }
 
-    //Events Creation
+    //Events Creation -----------------------------------------
     public void NewPositionEvent(GameObject player)
     {
         PlayerPosition new_pos = new PlayerPosition(events_count, System.DateTime.Now, player.transform.position);
@@ -52,17 +70,36 @@ public class EventHandler : MonoBehaviour
         events_count++;
     }
 
+    //Write Events --------------------------------------------
     public void WritePosEventsData()
     {
-        string events = "[\n";
+        string events = "{\n";
 
-        foreach (PlayerPosition pos in pos_events)
+        for (int i = 0; i<pos_events.Count; ++i)
         {
-            events += pos.GetJSON() + ",\n";
+            events += pos_events[i].GetJSON() + "\n";
         }
 
-        events +="]";
+        events +="}";
 
-        Writer.Write("PositionEvents", events);
+        Writer.Write(Position_filename, events);
+    }
+
+    //Read Events ---------------------------------------------
+    public void ReadPosEventsData()
+    {
+        string[] data = Reader.Read(Position_filename);
+
+        if (data == null)
+            return;
+
+        for (int row = 1; row < data.Length - 1; ++row)
+        {
+            PlayerPosition new_pos = new PlayerPosition();
+
+            JsonUtility.FromJsonOverwrite(data[row], new_pos);
+            pos_events.Add(new_pos);
+            events_count++;
+        }
     }
 }

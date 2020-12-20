@@ -49,7 +49,7 @@ public class EventData
 
     public string GetJSON()
     {
-        return JsonUtility.ToJson(this, true);
+        return JsonUtility.ToJson(this);
     }
 }
 
@@ -57,6 +57,13 @@ public class EventData
 [Serializable]
 public class PlayerPosition : EventData
 {
+    public PlayerPosition()
+    {
+        EventID = 0;
+        TimeStamp = System.DateTime.Now;
+        position = Vector3.zero;
+    }
+
     public PlayerPosition(uint event_id, DateTime time, Vector3 position) : base(event_id, time, position)
     {
         event_type = Events.PLAYER_POSITION;
